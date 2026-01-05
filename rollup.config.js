@@ -9,7 +9,7 @@ export default [
     output: {
       file: 'dist/iziModal.esm.js',
       format: 'es',
-      sourcemap: true
+      sourcemap: true,
     },
     plugins: [
       nodeResolve(),
@@ -17,13 +17,16 @@ export default [
         babelHelpers: 'bundled',
         exclude: 'node_modules/**',
         presets: [
-          ['@babel/preset-env', {
-            targets: { esmodules: true },
-            modules: false
-          }]
-        ]
-      })
-    ]
+          [
+            '@babel/preset-env',
+            {
+              targets: { esmodules: true },
+              modules: false,
+            },
+          ],
+        ],
+      }),
+    ],
   },
   // ESM版（圧縮）- 本番用
   {
@@ -31,7 +34,7 @@ export default [
     output: {
       file: 'dist/iziModal.esm.min.js',
       format: 'es',
-      sourcemap: true
+      sourcemap: true,
     },
     plugins: [
       nodeResolve(),
@@ -39,21 +42,24 @@ export default [
         babelHelpers: 'bundled',
         exclude: 'node_modules/**',
         presets: [
-          ['@babel/preset-env', {
-            targets: { esmodules: true },
-            modules: false
-          }]
-        ]
+          [
+            '@babel/preset-env',
+            {
+              targets: { esmodules: true },
+              modules: false,
+            },
+          ],
+        ],
       }),
       terser({
         compress: {
           drop_console: false,
-          passes: 2
+          passes: 2,
         },
         mangle: {
-          properties: false
-        }
-      })
-    ]
-  }
+          properties: false,
+        },
+      }),
+    ],
+  },
 ];
