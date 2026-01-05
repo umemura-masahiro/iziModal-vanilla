@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iziModal Vanilla - Demo</title>
+  <link rel="stylesheet" href="css/iziModal.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 40px;
+    }
+    .demo-section {
+      margin-bottom: 40px;
+    }
+    .demo-section h2 {
+      color: #444;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #88A0B9;
+      padding-bottom: 10px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 8px;
+      background: #88A0B9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #6d8399;
+    }
+    .btn-success {
+      background: #5cb85c;
+    }
+    .btn-success:hover {
+      background: #4cae4c;
+    }
+    .btn-danger {
+      background: #d9534f;
+    }
+    .btn-danger:hover {
+      background: #c9302c;
+    }
+    .btn-info {
+      background: #5bc0de;
+    }
+    .btn-info:hover {
+      background: #46b8da;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎉 iziModal Vanilla</h1>
+    <p class="subtitle">Elegant, responsive, flexible and lightweight modal plugin with <strong>Vanilla JavaScript</strong> (no jQuery required)</p>
+
+    <div class="demo-section">
+      <h2>基本的な使い方</h2>
+      <button class="btn" data-iziModal-open="#modal-basic">基本モーダルを開く</button>
+      <button class="btn btn-success" onclick="openProgrammatically()">プログラムで開く</button>
+    </div>
+
+    <div class="demo-section">
+      <h2>カスタマイズ</h2>
+      <button class="btn btn-info" data-iziModal-open="#modal-fullscreen">フルスクリーン</button>
+      <button class="btn btn-danger" data-iziModal-open="#modal-timeout">自動クローズ (3秒)</button>
+      <button class="btn" data-iziModal-open="#modal-custom">カスタムスタイル</button>
+    </div>
+
+    <div class="demo-section">
+      <h2>トランジション</h2>
+      <button class="btn" data-iziModal-open="#modal-transition" data-iziModal-transitionIn="fadeInDown">フェードイン (下)</button>
+      <button class="btn" data-iziModal-open="#modal-transition" data-iziModal-transitionIn="bounceInLeft">バウンス (左)</button>
+      <button class="btn" data-iziModal-open="#modal-transition" data-iziModal-transitionIn="flipInX">フリップ</button>
+    </div>
+
+    <div class="demo-section">
+      <h2>iframe対応</h2>
+      <button class="btn btn-info" data-iziModal-open="#modal-iframe">iframeモーダル</button>
+    </div>
+
+    <div class="demo-section">
+      <h2>ファイルサイズ</h2>
+      <p>
+        <strong>jQuery版 (v1.x):</strong> 約50KB (min)<br>
+        <strong>Vanilla版 (v2.x):</strong> 約23KB (min) 🎯<br>
+        <em>約54%のサイズ削減に成功！</em>
+      </p>
+    </div>
+
+    <div class="demo-section">
+      <h2>インストール</h2>
+      <pre><code>npm install izimodal-vanilla</code></pre>
+
+      <h3>使用例</h3>
+      <pre><code>import iziModal from 'izimodal-vanilla';
+import 'izimodal-vanilla/css';
+
+const modal = iziModal('#myModal', {
+  title: 'Welcome',
+  subtitle: 'This is a modal',
+  onOpened: (modal) => {
+    console.log('Modal opened!');
+  }
+});
+
+modal.open();</code></pre>
+    </div>
+  </div>
+
+  <!-- モーダル定義 -->
+  <div id="modal-basic" style="display:none;">
+    <h2>基本モーダル</h2>
+    <p>これはVanilla JavaScriptで作られたiziModalです。</p>
+    <p>jQueryは不要で、軽量で高速です！</p>
+  </div>
+
+  <div id="modal-fullscreen" style="display:none;">
+    <h2>フルスクリーンモーダル</h2>
+    <p>このモーダルはフルスクリーンで開きます。</p>
+    <p>右上のボタンでフルスクリーンの切り替えができます。</p>
+  </div>
+
+  <div id="modal-timeout" style="display:none;">
+    <h2>自動クローズ</h2>
+    <p>このモーダルは3秒後に自動的に閉じます。</p>
+    <p>プログレスバーで残り時間を確認できます。</p>
+  </div>
+
+  <div id="modal-custom" style="display:none;">
+    <h2>カスタムスタイル</h2>
+    <p>ヘッダーの色やアイコンをカスタマイズできます。</p>
+    <p>様々なオプションで見た目を変更可能です。</p>
+  </div>
+
+  <div id="modal-transition" style="display:none;">
+    <h2>トランジション効果</h2>
+    <p>様々なアニメーション効果を選択できます。</p>
+    <p>開く時と閉じる時で異なるアニメーションも設定可能です。</p>
+  </div>
+
+  <div id="modal-iframe" style="display:none;">
+    <h2>iframeモーダル</h2>
+    <p>外部コンテンツを読み込めます。</p>
+  </div>
+
+  <!-- スクリプト -->
+  <script type="module">
+    import iziModal from './dist/iziModal.esm.js';
+
+    // 基本モーダル
+    iziModal('#modal-basic', {
+      title: '基本モーダル',
+      subtitle: 'Vanilla JavaScript版',
+      headerColor: '#88A0B9',
+      width: 600,
+      onOpened: (modal) => {
+        console.log('基本モーダルが開きました', modal);
+      }
+    });
+
+    // フルスクリーンモーダル
+    iziModal('#modal-fullscreen', {
+      title: 'フルスクリーン',
+      subtitle: '画面全体に表示',
+      fullscreen: true,
+      openFullscreen: false,
+      headerColor: '#5bc0de'
+    });
+
+    // 自動クローズモーダル
+    iziModal('#modal-timeout', {
+      title: '自動クローズ',
+      subtitle: '3秒後に閉じます',
+      timeout: 3000,
+      timeoutProgressbar: true,
+      pauseOnHover: true,
+      headerColor: '#d9534f'
+    });
+
+    // カスタムスタイルモーダル
+    iziModal('#modal-custom', {
+      title: 'カスタムスタイル',
+      subtitle: 'お好みの設定で',
+      headerColor: '#9b59b6',
+      background: '#f9f9f9',
+      icon: 'icon-home',
+      iconColor: '#fff',
+      borderBottom: true,
+      radius: 10
+    });
+
+    // トランジションモーダル
+    iziModal('#modal-transition', {
+      title: 'トランジション',
+      subtitle: 'アニメーション効果',
+      headerColor: '#88A0B9'
+    });
+
+    // iframeモーダル
+    iziModal('#modal-iframe', {
+      title: 'iframeコンテンツ',
+      subtitle: '外部ページを表示',
+      iframe: true,
+      iframeHeight: 400,
+      iframeURL: 'https://izimodal.marcelodolza.com',
+      headerColor: '#5bc0de',
+      width: 800
+    });
+
+    // プログラムで開く例
+    window.openProgrammatically = function() {
+      const modal = iziModal('#modal-basic');
+      modal.open();
+    };
+
+    console.log('iziModal Vanilla v2.0.0 loaded!');
+  </script>
+</body>
+</html>
