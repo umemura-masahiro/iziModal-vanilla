@@ -13,7 +13,10 @@ export function initHashAutoOpen() {
   events.on(window, 'load', () => {
     const modalHash = decodeURIComponent(document.location.hash);
 
-    if (window.$iziModal.autoOpen === 0 && !dom.query(`.${PLUGIN_NAME}:visible`)) {
+    // 可視なモーダルがあるかチェック
+    const visibleModals = dom.queryAllVisible(`.${PLUGIN_NAME}`);
+
+    if (window.$iziModal.autoOpen === 0 && visibleModals.length === 0) {
       try {
         const modal = dom.query(modalHash);
         if (modal) {

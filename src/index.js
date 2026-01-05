@@ -153,7 +153,7 @@ function initGlobalEvents() {
 
     // 既存のモーダルを閉じる
     if (!preventClose) {
-      const visibleModals = dom.queryAll(`.${PLUGIN_NAME}:visible`);
+      const visibleModals = dom.queryAllVisible(`.${PLUGIN_NAME}`);
       visibleModals.forEach(modal => {
         const instance = getInstance(modal);
         if (instance) {
@@ -178,7 +178,7 @@ function initGlobalEvents() {
 
   // キーボード操作（矢印キー）
   events.on(document, 'keyup', (event) => {
-    const visibleModals = dom.queryAll(`.${PLUGIN_NAME}:visible`);
+    const visibleModals = dom.queryAllVisible(`.${PLUGIN_NAME}`);
 
     if (visibleModals.length > 0) {
       const modal = visibleModals[0];

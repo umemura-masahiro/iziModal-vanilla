@@ -79,14 +79,24 @@ export function removeAttr(element, attr) {
 }
 
 /**
- * CSSスタイルを設定
+ * CSSスタイルを設定または取得
  */
 export function css(element, styles) {
-  if (element && styles) {
+  if (!element) return null;
+
+  // 文字列の場合は取得
+  if (typeof styles === 'string') {
+    return window.getComputedStyle(element)[styles];
+  }
+
+  // オブジェクトの場合は設定
+  if (styles && typeof styles === 'object') {
     Object.keys(styles).forEach(property => {
       element.style[property] = styles[property];
     });
   }
+
+  return element;
 }
 
 /**
@@ -94,7 +104,7 @@ export function css(element, styles) {
  */
 export function show(element) {
   if (element) {
-    element.style.display = '';
+    element.style.display = 'block';
   }
 }
 
@@ -144,6 +154,34 @@ export function innerWidth(element) {
 export function innerHeight(element) {
   if (!element) return 0;
   return element.clientHeight;
+}
+
+/**
+ * 要素が可視かどうかをチェック（jQuery :visible の代替）
+ */
+export function isVisible(element) {
+  if (!element) return false;
+
+  // display: none でないか、offsetParent が存在するかをチェック
+  if (element.offsetParent === null) {
+    return false;
+  }
+
+  // 計算されたスタイルをチェック
+  const style = window.getComputedStyle(element);
+  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * 可視な要素のみを取得
+ */
+export function queryAllVisible(selector, context = document) {
+  const elements = queryAll(selector, context);
+  return elements.filter(el => isVisible(el));
 }
 
 /**

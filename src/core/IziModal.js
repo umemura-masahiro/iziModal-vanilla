@@ -442,7 +442,8 @@ class IziModal {
 
       // フォーカス設定
       if (this.options.focusInput) {
-        const firstInput = dom.query(':input:not(button):enabled', this.$element);
+        // :inputはjQuery独自セレクターなので、ネイティブセレクターに変換
+        const firstInput = dom.query('input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([disabled]), textarea:not([disabled]), select:not([disabled])', this.$element);
         if (firstInput) {
           firstInput.focus();
         }
@@ -498,7 +499,7 @@ class IziModal {
         content.innerHTML = that.content;
       }
 
-      if (dom.queryAll(`.${PLUGIN_NAME}:visible`).length === 0) {
+      if (dom.queryAllVisible(`.${PLUGIN_NAME}`).length === 0) {
         dom.removeClass(document.documentElement, `${PLUGIN_NAME}-isAttached`);
       }
     }

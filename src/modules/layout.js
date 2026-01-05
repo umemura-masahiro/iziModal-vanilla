@@ -139,14 +139,14 @@ export function recalcLayout(modal) {
       if (modal.options.bottom > 0 && modal.options.top === null && contentHeight < window.innerHeight) {
         dom.addClass(modal.$element, 'isAttachedTop');
       }
-      if (dom.queryAll(`.${PLUGIN_NAME}:visible`).length === 1) {
+      if (dom.queryAllVisible(`.${PLUGIN_NAME}`).length === 1) {
         dom.addClass(document.documentElement, `${PLUGIN_NAME}-isAttached`);
       }
       dom.css(modal.$element, { height: adjustedWindowHeight + 'px' });
     } else {
       dom.css(modal.$element, { height: (contentHeight + modal.headerHeight + borderSize) + 'px' });
       dom.removeClass(modal.$element, 'isAttachedTop', 'isAttachedBottom');
-      if (dom.queryAll(`.${PLUGIN_NAME}:visible`).length === 1) {
+      if (dom.queryAllVisible(`.${PLUGIN_NAME}`).length === 1) {
         dom.removeClass(document.documentElement, `${PLUGIN_NAME}-isAttached`);
       }
     }
