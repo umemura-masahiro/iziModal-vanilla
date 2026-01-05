@@ -1,6 +1,9 @@
 {
   "name": "izimodal-vanilla",
-  "version": "2.0.0",
+  "version": "2.0.0-beta.1",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "description": "Elegant, responsive, flexible and lightweight modal plugin with Vanilla JavaScript (no jQuery required).",
   "type": "module",
   "main": "./dist/iziModal.esm.js",
