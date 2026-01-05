@@ -33,7 +33,7 @@ class IziModal {
     if (this.$element.id) {
       this.id = this.$element.id;
     } else {
-      this.id = PLUGIN_NAME + Math.floor((Math.random() * 10000000) + 1);
+      this.id = PLUGIN_NAME + Math.floor(Math.random() * 10000000 + 1);
       this.$element.id = this.id;
     }
 
@@ -55,13 +55,15 @@ class IziModal {
     this.$overlay = dom.create(`<div class="${PLUGIN_NAME}-overlay"></div>`);
     dom.css(this.$overlay, { backgroundColor: this.options.overlayColor });
 
-    this.$navigate = dom.create(`<div class="${PLUGIN_NAME}-navigate"><div class="${PLUGIN_NAME}-navigate-caption">Use</div><button class="${PLUGIN_NAME}-navigate-prev"></button><button class="${PLUGIN_NAME}-navigate-next"></button></div>`);
+    this.$navigate = dom.create(
+      `<div class="${PLUGIN_NAME}-navigate"><div class="${PLUGIN_NAME}-navigate-caption">Use</div><button class="${PLUGIN_NAME}-navigate-prev"></button><button class="${PLUGIN_NAME}-navigate-next"></button></div>`
+    );
 
     // グループ設定
     this.group = {
       name: dom.getAttr(this.$element, `data-${PLUGIN_NAME}-group`),
       index: null,
-      ids: []
+      ids: [],
     };
 
     // ARIA属性の設定
@@ -74,6 +76,11 @@ class IziModal {
       dom.addClass(this.$element, 'iziModal');
     }
 
+    // イベントハンドラーの参照を保存
+    this._eventsInitialized = false;
+    this._closeBtnHandler = null;
+    this._fullscreenBtnHandler = null;
+
     // グループ設定
     if (this.group.name === null && this.options.group !== '') {
       this.group.name = this.options.group;
@@ -85,7 +92,7 @@ class IziModal {
     }
 
     // data属性からオプションを読み込み
-    Object.keys(this.options).forEach(key => {
+    Object.keys(this.options).forEach((key) => {
       const attr = dom.getAttr(this.$element, `data-${PLUGIN_NAME}-${key}`);
       if (attr !== null) {
         if (attr === '' || attr === 'true') {
@@ -171,7 +178,9 @@ class IziModal {
   }
 
   createHeader() {
-    this.$header = dom.create(`<div class="${PLUGIN_NAME}-header"><h2 class="${PLUGIN_NAME}-header-title"></h2><p class="${PLUGIN_NAME}-header-subtitle"></p><div class="${PLUGIN_NAME}-header-buttons"></div></div>`);
+    this.$header = dom.create(
+      `<div class="${PLUGIN_NAME}-header"><h2 class="${PLUGIN_NAME}-header-title"></h2><p class="${PLUGIN_NAME}-header-subtitle"></p><div class="${PLUGIN_NAME}-header-buttons"></div></div>`
+    );
 
     // 閉じるボタン
     if (this.options.closeButton === true) {
@@ -246,7 +255,7 @@ class IziModal {
     // 他のモーダルを閉じる
     if (param && param.preventClose === false) {
       const modals = dom.queryAll(`.${PLUGIN_NAME}`);
-      modals.forEach(modal => {
+      modals.forEach((modal) => {
         const instance = getInstance(modal);
         if (instance) {
           const state = instance.getState();
@@ -278,20 +287,28 @@ class IziModal {
     }
 
     function bindEvents() {
+      // 既にイベントが初期化されている場合はスキップ
+      if (that._eventsInitialized) {
+        // ナビゲーションボタンのみ再バインド（これらは毎回削除/再作成されるため）
+        bindNavigationEvents();
+        return;
+      }
+
       // 閉じるボタン
       const closeBtn = dom.query(`[data-${PLUGIN_NAME}-close]`, that.$element);
       if (closeBtn) {
-        events.on(closeBtn, 'click', (e) => {
+        that._closeBtnHandler = (e) => {
           e.preventDefault();
           const transition = dom.getAttr(e.currentTarget, `data-${PLUGIN_NAME}-transitionOut`);
           that.close(transition ? { transition } : undefined);
-        });
+        };
+        events.on(closeBtn, 'click', that._closeBtnHandler);
       }
 
       // フルスクリーンボタン
       const fullscreenBtn = dom.query(`[data-${PLUGIN_NAME}-fullscreen]`, that.$element);
       if (fullscreenBtn) {
-        events.on(fullscreenBtn, 'click', (e) => {
+        that._fullscreenBtnHandler = (e) => {
           e.preventDefault();
           if (that.isFullscreen === true) {
             that.isFullscreen = false;
@@ -305,9 +322,17 @@ class IziModal {
             that.options.onFullscreen(that);
           }
           events.trigger(that.$element, 'fullscreen', that);
-        });
+        };
+        events.on(fullscreenBtn, 'click', that._fullscreenBtnHandler);
       }
 
+      that._eventsInitialized = true;
+
+      // ナビゲーションイベントをバインド
+      bindNavigationEvents();
+    }
+
+    function bindNavigationEvents() {
       // ナビゲーション（次へ・前へ）
       const nextBtn = dom.query(`.${PLUGIN_NAME}-navigate-next`, that.$navigate);
       if (nextBtn) {
@@ -342,7 +367,7 @@ class IziModal {
         dom.addClass(content, `${PLUGIN_NAME}-content-loader`);
 
         const iframe = dom.query(`.${PLUGIN_NAME}-iframe`, this.$element);
-        events.on(iframe, 'load', function() {
+        events.on(iframe, 'load', function () {
           dom.removeClass(content, `${PLUGIN_NAME}-content-loader`);
         });
 
@@ -540,8 +565,10 @@ class IziModal {
           transitionOut,
           this.options.theme === 'light' ? `${PLUGIN_NAME}-light` : this.options.theme,
           this.isFullscreen ? 'isFullscreen' : '',
-          this.options.rtl ? `${PLUGIN_NAME}-rtl` : ''
-        ].filter(c => c).join(' ');
+          this.options.rtl ? `${PLUGIN_NAME}-rtl` : '',
+        ]
+          .filter((c) => c)
+          .join(' ');
 
         dom.addClass(this.$overlay, this.options.transitionOutOverlay);
 
@@ -559,12 +586,42 @@ class IziModal {
     }
   }
 
+  /**
+   * イベントリスナーを削除
+   */
+  unbindEvents() {
+    // 閉じるボタンのイベントリスナーを削除
+    if (this._closeBtnHandler) {
+      const closeBtn = dom.query(`[data-${PLUGIN_NAME}-close]`, this.$element);
+      if (closeBtn) {
+        events.off(closeBtn, 'click', this._closeBtnHandler);
+      }
+      this._closeBtnHandler = null;
+    }
+
+    // フルスクリーンボタンのイベントリスナーを削除
+    if (this._fullscreenBtnHandler) {
+      const fullscreenBtn = dom.query(`[data-${PLUGIN_NAME}-fullscreen]`, this.$element);
+      if (fullscreenBtn) {
+        events.off(fullscreenBtn, 'click', this._fullscreenBtnHandler);
+      }
+      this._fullscreenBtnHandler = null;
+    }
+
+    // Escキーハンドラーを削除
+    if (this._escHandler) {
+      events.off($document, 'keydown', this._escHandler);
+      this._escHandler = null;
+    }
+
+    this._eventsInitialized = false;
+  }
+
   destroy() {
     events.trigger(this.$element, 'destroy');
 
-    if (this._escHandler) {
-      events.off($document, 'keydown', this._escHandler);
-    }
+    // イベントリスナーをクリーンアップ
+    this.unbindEvents();
 
     clearTimeout(this.timer);
     clearTimeout(this.timerTimeout);
@@ -611,7 +668,7 @@ class IziModal {
       const modals = dom.queryAll(`.${PLUGIN_NAME}[data-${PLUGIN_NAME}-group="${group}"]`);
       let count = 0;
 
-      modals.forEach(modal => {
+      modals.forEach((modal) => {
         that.group.ids.push(modal.id);
         if (that.id === modal.id) {
           that.group.index = count;
@@ -643,7 +700,7 @@ class IziModal {
         maxHideTime: null,
         currentTime: new Date().getTime(),
         el: dom.query(`.${PLUGIN_NAME}-progressbar > div`, this.$element),
-        updateProgress: function() {
+        updateProgress: function () {
           if (!that.isPaused) {
             that.progressBar.currentTime = that.progressBar.currentTime + 10;
             const percentage = ((that.progressBar.hideEta - that.progressBar.currentTime) / that.progressBar.maxHideTime) * 100;
@@ -653,7 +710,7 @@ class IziModal {
               that.close();
             }
           }
-        }
+        },
       };
 
       if (timeout > 0) {
