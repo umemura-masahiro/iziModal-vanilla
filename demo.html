@@ -90,7 +90,13 @@
 
     <div class="demo-section">
       <h2>カスタマイズ</h2>
-      <button class="btn btn-info" data-iziModal-open="#modal-fullscreen">フルスクリーン</button>
+      <p>
+        <button class="btn btn-info" data-iziModal-open="#modal-fullscreen">フルスクリーンボタン</button>
+        <button class="btn btn-info" data-iziModal-open="#modal-fullscreen-auto">最初からフルスクリーン</button>
+      </p>
+      <p style="font-size: 13px; color: #666; margin-top: -5px;">
+        💡 <code>fullscreen: true</code> はボタンのみ表示、<code>openFullscreen: true</code> は最初から全画面
+      </p>
       <button class="btn btn-danger" data-iziModal-open="#modal-timeout">自動クローズ (3秒)</button>
       <button class="btn" data-iziModal-open="#modal-custom">カスタムスタイル</button>
     </div>
@@ -103,8 +109,47 @@
     </div>
 
     <div class="demo-section">
+      <h2>🎠 ギャラリー（グループナビゲーション）</h2>
+      <p>同じクラス名を持つ複数のモーダルを一度に初期化すると、自動的にギャラリーとして機能します。</p>
+      <button class="btn" data-iziModal-open="#modal-gallery-1">ギャラリーを開く（1枚目）</button>
+      <button class="btn btn-success" data-iziModal-open="#modal-gallery-2">ギャラリーを開く（2枚目）</button>
+      <button class="btn btn-info" data-iziModal-open="#modal-gallery-3">ギャラリーを開く（3枚目）</button>
+      <p style="margin-top: 15px; font-size: 13px; color: #666;">
+        💡 <code>iziModal('.gallery-modal', options)</code> のように、クラスセレクターで複数の要素を一度に初期化<br>
+        モーダル内の矢印ボタンまたは<strong>キーボードの左右矢印キー</strong>で移動できます
+      </p>
+    </div>
+
+    <div class="demo-section">
       <h2>iframe対応</h2>
-      <button class="btn btn-info" data-iziModal-open="#modal-iframe">iframeモーダル</button>
+      <button class="btn btn-info" data-iziModal-open="#modal-iframe">iframeモーダル（固定URL）</button>
+      <br>
+      <p style="margin-top: 15px; font-size: 13px; color: #666;">
+        💡 トリガーの<code>href</code>属性から動的にiframe URLを取得：
+      </p>
+      <a href="https://marcelodolza.github.io/iziModal/" class="btn btn-info" data-iziModal-open="#modal-iframe-dynamic" style="text-decoration: none;">
+        トリガーのhrefを使用（公式サイト）
+      </a>
+      <a href="https://www.example.com" class="btn" data-iziModal-open="#modal-iframe-dynamic" style="text-decoration: none;">
+        トリガーのhrefを使用（Example）
+      </a>
+    </div>
+
+    <div class="demo-section">
+      <h2>🧪 タイトルなしモーダル（テスト）</h2>
+      <p><code>title</code>が空でもヘッダー機能が正常に動作するかのテストです。</p>
+      <button class="btn" data-iziModal-open="#modal-no-title-title-only">タイトルのみ</button>
+      <button class="btn" data-iziModal-open="#modal-no-title-subtitle-only">サブタイトルのみ</button>
+      <button class="btn btn-success" data-iziModal-open="#modal-no-title-close-only">閉じるボタンのみ</button>
+      <button class="btn btn-info" data-iziModal-open="#modal-no-title-fullscreen">フルスクリーンボタン有効</button>
+      <button class="btn btn-danger" data-iziModal-open="#modal-no-title-timeout">プログレスバー付き</button>
+      <br>
+      <p style="margin-top: 15px; font-size: 13px; color: #666;">
+        💡 タイトルなし + 動的iframe URL：
+      </p>
+      <a href="https://marcelodolza.github.io/iziModal/" class="btn" data-iziModal-open="#modal-no-title-iframe" style="text-decoration: none; background: #9b59b6;">
+        タイトルなしiframe
+      </a>
     </div>
 
     <div class="demo-section">
@@ -116,7 +161,7 @@
       </p>
     </div>
 
-    <div class="demo-section">
+    <!-- <div class="demo-section">
       <h2>インストール</h2>
       <pre><code>npm install izimodal-vanilla</code></pre>
 
@@ -133,7 +178,7 @@ const modal = iziModal('#myModal', {
 });
 
 modal.open();</code></pre>
-    </div>
+    </div> -->
   </div>
 
   <!-- モーダル定義 -->
@@ -144,10 +189,18 @@ modal.open();</code></pre>
   </div>
 
   <div id="modal-fullscreen" style="display:none;">
-    <h2>フルスクリーンモーダル</h2>
-    <p>このモーダルはフルスクリーンで開きます。</p>
-    <p>右上のボタンでフルスクリーンの切り替えができます。</p>
+    <h2>フルスクリーンボタン付きモーダル</h2>
+    <p>このモーダルは通常サイズで開きますが、フルスクリーンボタンがあります。</p>
+    <p>右上のボタンをクリックしてフルスクリーンの切り替えができます。</p>
   </div>
+
+  <div id="modal-fullscreen-auto" style="display:none;">
+    <h2>フルスクリーンモーダル</h2>
+    <p>このモーダルは最初からフルスクリーンで開きます。</p>
+    <p>右上のボタンでフルスクリーンを解除できます。</p>
+  </div>
+
+  <div id="modal-iframe-dynamic" style="display:none;"></div>
 
   <div id="modal-timeout" style="display:none;">
     <h2>自動クローズ</h2>
@@ -167,10 +220,105 @@ modal.open();</code></pre>
     <p>開く時と閉じる時で異なるアニメーションも設定可能です。</p>
   </div>
 
-  <div id="modal-iframe" style="display:none;">
-    <h2>iframeモーダル</h2>
-    <p>外部コンテンツを読み込めます。</p>
+  <!-- ギャラリーモーダル（グループナビゲーション） -->
+  <div id="modal-gallery-1" class="gallery-modal" data-izimodal-title="ギャラリー 1" style="display:none;">
+    <div style="text-align: center; padding: 40px 20px;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 20px;">
+        <h1 style="color: white; font-size: 48px; margin: 0;">1</h1>
+      </div>
+      <h3>ギャラリー画像 1</h3>
+      <p>左右の矢印ボタンまたはキーボードの矢印キーで移動できます。</p>
+      <p style="color: #999; font-size: 13px;">← 前へ | 次へ →</p>
+    </div>
   </div>
+
+  <div id="modal-gallery-2" class="gallery-modal" data-izimodal-title="ギャラリー 2" style="display:none;">
+    <div style="text-align: center; padding: 40px 20px;">
+      <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 20px;">
+        <h1 style="color: white; font-size: 48px; margin: 0;">2</h1>
+      </div>
+      <h3>ギャラリー画像 2</h3>
+      <p>これは2枚目の画像です。スライドアニメーションで切り替わります。</p>
+      <p style="color: #999; font-size: 13px;">← 前へ | 次へ →</p>
+    </div>
+  </div>
+
+  <div id="modal-gallery-3" class="gallery-modal" data-izimodal-title="ギャラリー 3" style="display:none;">
+    <div style="text-align: center; padding: 40px 20px;">
+      <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 20px;">
+        <h1 style="color: white; font-size: 48px; margin: 0;">3</h1>
+      </div>
+      <h3>ギャラリー画像 3</h3>
+      <p>最後の画像です。loopが有効なので、次へ進むと最初に戻ります。</p>
+      <p style="color: #999; font-size: 13px;">← 前へ | 最初へ →</p>
+    </div>
+  </div>
+
+  <div id="modal-iframe" style="display:none;"></div>
+
+  <!-- タイトルのみモーダル（テスト用） -->
+  <div id="modal-no-title-title-only" style="display:none;">
+    <h2>タイトルのみモーダル</h2>
+    <p>サブタイトルは空ですが、タイトルと閉じるボタンは表示されるはずです。</p>
+    <p><strong>確認項目：</strong></p>
+    <ul>
+      <li>✅ タイトルが表示される</li>
+      <li>✅ 閉じるボタン（×）が動作する</li>
+      <li>✅ ヘッダーが正しく表示される</li>
+    </ul>
+  </div>
+
+  <!-- タイトルなしモーダル（テスト用） -->
+  <div id="modal-no-title-subtitle-only" style="display:none;">
+    <h2>サブタイトルのみモーダル</h2>
+    <p>タイトルは空ですが、サブタイトルと閉じるボタンは表示されるはずです。</p>
+    <p><strong>確認項目：</strong></p>
+    <ul>
+      <li>✅ サブタイトルが表示される</li>
+      <li>✅ 閉じるボタン（×）が動作する</li>
+      <li>✅ ヘッダーが正しく表示される</li>
+    </ul>
+  </div>
+
+  <div id="modal-no-title-close-only" style="display:none;">
+    <h2>閉じるボタンのみ</h2>
+    <p>タイトルもサブタイトルも空ですが、閉じるボタンは機能するはずです。</p>
+    <p><strong>確認項目：</strong></p>
+    <ul>
+      <li>✅ 閉じるボタン（×）が表示される</li>
+      <li>✅ 閉じるボタンが動作する</li>
+      <li>✅ ヘッダー領域が表示される</li>
+    </ul>
+  </div>
+
+  <div id="modal-no-title-fullscreen" style="display:none;">
+    <h2>フルスクリーンボタンテスト</h2>
+    <p>タイトルは空ですが、閉じるボタンとフルスクリーンボタンが表示されるはずです。</p>
+    <p><strong>💡 オプションの違い：</strong></p>
+    <ul>
+      <li><code>fullscreen: true</code> - フルスクリーンボタンを表示（ユーザーが手動で切り替え）</li>
+      <li><code>openFullscreen: true</code> - 最初からフルスクリーンで開く</li>
+    </ul>
+    <p><strong>確認項目：</strong></p>
+    <ul>
+      <li>✅ 閉じるボタンが動作する</li>
+      <li>✅ フルスクリーンボタンが表示される</li>
+      <li>✅ フルスクリーンボタンをクリックすると全画面になる</li>
+    </ul>
+  </div>
+
+  <div id="modal-no-title-timeout" style="display:none;">
+    <h2>プログレスバーテスト</h2>
+    <p>タイトルは空ですが、タイムアウトプログレスバーが表示されるはずです。</p>
+    <p><strong>確認項目：</strong></p>
+    <ul>
+      <li>✅ プログレスバーが表示される</li>
+      <li>✅ プログレスバーがアニメーションする</li>
+      <li>✅ 5秒後に自動的に閉じる</li>
+    </ul>
+  </div>
+
+  <div id="modal-no-title-iframe" style="display:none;"></div>
 
   <!-- スクリプト -->
   <script type="module">
@@ -182,18 +330,30 @@ modal.open();</code></pre>
       subtitle: 'Vanilla JavaScript版',
       headerColor: '#88A0B9',
       width: 600,
+      padding: 20, // コンテンツに20pxのpaddingを追加
       onOpened: (modal) => {
         console.log('基本モーダルが開きました', modal);
       }
     });
 
-    // フルスクリーンモーダル
+    // フルスクリーンボタン付きモーダル
     iziModal('#modal-fullscreen', {
-      title: 'フルスクリーン',
-      subtitle: '画面全体に表示',
+      title: 'フルスクリーンボタン',
+      subtitle: 'ボタンで切り替え可能',
       fullscreen: true,
       openFullscreen: false,
-      headerColor: '#5bc0de'
+      headerColor: '#5bc0de',
+      padding: 20
+    });
+
+    // 最初からフルスクリーンで開くモーダル
+    iziModal('#modal-fullscreen-auto', {
+      title: 'フルスクリーン',
+      subtitle: '最初から全画面表示',
+      fullscreen: true,
+      openFullscreen: true,
+      headerColor: '#5bc0de',
+      padding: 20
     });
 
     // 自動クローズモーダル
@@ -203,7 +363,8 @@ modal.open();</code></pre>
       timeout: 3000,
       timeoutProgressbar: true,
       pauseOnHover: true,
-      headerColor: '#d9534f'
+      headerColor: '#d9534f',
+      padding: 20
     });
 
     // カスタムスタイルモーダル
@@ -215,17 +376,47 @@ modal.open();</code></pre>
       icon: 'icon-home',
       iconColor: '#fff',
       borderBottom: true,
-      radius: 10
+      radius: 10,
+      padding: 20
     });
 
     // トランジションモーダル
     iziModal('#modal-transition', {
       title: 'トランジション',
       subtitle: 'アニメーション効果',
-      headerColor: '#88A0B9'
+      headerColor: '#88A0B9',
+      padding: 20
     });
 
-    // iframeモーダル
+    // ギャラリーモーダル（グループナビゲーション）
+    // 同じクラスセレクターで複数の要素を初期化すると、自動的にグループ化されます
+    const galleries = iziModal('.gallery-modal', {
+      title: 'ギャラリー',
+      subtitle: '',
+      loop: true,  // ループを有効にする
+      arrowKeys: true,  // キーボードの矢印キーでナビゲーション
+      navigateCaption: true,  // ナビゲーションキャプション（1/3など）を表示
+      navigateArrows: 'closeToModal',  // 左右の矢印ボタンを表示（'closeToModal' or 'closeScreenEdge' or true）
+      headerColor: '#667eea',
+      width: 700,
+      padding: 0,
+      onOpening: function(modal) {
+        console.log('=== Gallery onOpening callback ===');
+        console.log('Modal group:', modal.group);
+        console.log('Modal options.navigateArrows:', modal.options.navigateArrows);
+        console.log('Modal options.navigateCaption:', modal.options.navigateCaption);
+
+        // 各モーダルのdata-izimodal-title属性からタイトルを取得
+        const customTitle = modal.$element.getAttribute('data-izimodal-title');
+        if (customTitle) {
+          modal.setTitle(customTitle);
+        }
+      }
+    });
+
+    console.log('Gallery instances created:', galleries);
+
+    // iframeモーダル（固定URL）
     iziModal('#modal-iframe', {
       title: 'iframeコンテンツ',
       subtitle: '外部ページを表示',
@@ -234,6 +425,103 @@ modal.open();</code></pre>
       iframeURL: 'https://marcelodolza.github.io/iziModal/',
       headerColor: '#5bc0de',
       width: 800
+    });
+
+    // iframeモーダル（動的URL - トリガーのhref属性から取得）
+    iziModal('#modal-iframe-dynamic', {
+      title: 'iframeモーダル',
+      subtitle: 'トリガーのhrefからURLを取得',
+      iframe: true,
+      iframeHeight: 500,
+      // iframeURL を指定しない場合、トリガー要素の href 属性が使用されます
+      headerColor: '#5bc0de',
+      width: 900,
+      fullscreen: true,
+      onOpening: function(modal) {
+        console.log('動的iframeモーダルを開いています...');
+      },
+      onOpened: function(modal) {
+        const iframe = modal.$element.querySelector('.iziModal-iframe');
+        if (iframe) {
+          console.log('iframe URL:', iframe.src);
+        }
+      }
+    });
+
+     iziModal('#modal-no-title-title-only', {
+         title: 'タイトルだけ表示', // 明示的に空文字列
+         subtitle: '',
+         headerColor: '#88A0B9',
+         closeButton: true,
+         width: 600,
+         padding: 20,
+         onOpened: (modal) => {
+           console.log('タイトルのみモーダルが開きました', modal);
+         }
+       });
+
+    // タイトルなしモーダル（テスト用）
+    // 1. サブタイトルのみ
+    iziModal('#modal-no-title-subtitle-only', {
+      title: '', // 明示的に空文字列
+      subtitle: 'サブタイトルだけ表示',
+      headerColor: '#88A0B9',
+      closeButton: true,
+      width: 600,
+      padding: 20
+    });
+
+    // 2. 閉じるボタンのみ（タイトルもサブタイトルも空）
+    iziModal('#modal-no-title-close-only', {
+      title: '',
+      subtitle: '',
+      closeButton: true,
+      headerColor: '#5cb85c',
+      width: 600,
+      padding: 20
+    });
+
+    // 3. フルスクリーンボタン有効
+    iziModal('#modal-no-title-fullscreen', {
+      title: '',
+      subtitle: '',
+      closeButton: true,
+      fullscreen: true,
+      headerColor: '#5bc0de',
+      width: 600,
+      padding: 20
+    });
+
+    // 4. タイムアウトプログレスバー
+    iziModal('#modal-no-title-timeout', {
+      title: '',
+      subtitle: '',
+      timeout: 5000,
+      timeoutProgressbar: true,
+      pauseOnHover: true,
+      closeButton: true,
+      headerColor: '#d9534f',
+      width: 600,
+      padding: 20,
+      onClosed: () => {
+        console.log('タイムアウトモーダルが閉じました');
+      }
+    });
+
+    // 5. タイトルなし + 動的iframe URL
+    iziModal('#modal-no-title-iframe', {
+      title: '',
+      subtitle: '',
+      iframe: true,
+      iframeHeight: 500,
+      closeButton: true,
+      fullscreen: true,
+      headerColor: '#9b59b6',
+      width: 900,
+      onOpened: function(modal) {
+        const iframe = modal.$element.querySelector('.iziModal-iframe');
+        console.log('タイトルなしiframeモーダル - URL:', iframe ? iframe.src : 'なし');
+      }
     });
 
     // プログラムで開く例

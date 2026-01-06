@@ -41,8 +41,19 @@ function iziModal(selector, optionOrMethod, ...args) {
     throw new Error('Invalid selector');
   }
 
+  // 複数要素の場合、自動的にグループを作成
+  const isMultiple = elements.length > 1;
+  let autoGroupName = null;
+
+  if (isMultiple && typeof optionOrMethod === 'object') {
+    // グループ名が指定されていない場合、自動生成
+    if (!optionOrMethod.group || optionOrMethod.group === '') {
+      autoGroupName = `iziModal-group-${Date.now()}`;
+    }
+  }
+
   // 各要素に対して処理
-  const instances = elements.map(element => {
+  const instances = elements.map((element, index) => {
     let instance = getInstance(element);
 
     // メソッド呼び出し（文字列が渡された場合）
@@ -65,6 +76,12 @@ function iziModal(selector, optionOrMethod, ...args) {
     // 新しいインスタンスを作成（オプションが渡された場合）
     if (!instance || optionOrMethod) {
       const options = extend(defaults, optionOrMethod || {});
+
+      // 自動グループ名を設定
+      if (autoGroupName) {
+        options.group = autoGroupName;
+      }
+
       instance = new IziModal(element, options);
       setInstance(element, instance);
 
@@ -81,6 +98,18 @@ function iziModal(selector, optionOrMethod, ...args) {
 
     return instance;
   });
+
+  // 複数要素でグループが設定されている場合、グループを再設定
+  if (isMultiple && instances.length > 0) {
+    console.log('Setting up group for multiple instances:', instances.length);
+    instances.forEach((instance, index) => {
+      if (instance && instance.group && instance.group.name) {
+        console.log(`Setting group for instance ${index}:`, instance.group.name);
+        instance.setGroup();
+        console.log(`Group set for instance ${index}:`, instance.group);
+      }
+    });
+  }
 
   // 単一要素の場合は1つのインスタンスを返す、複数の場合は配列を返す
   return instances.length === 1 ? instances[0] : instances;
@@ -168,10 +197,14 @@ function initGlobalEvents() {
 
     // 新しいモーダルを開く
     setTimeout(() => {
-      if (transitionIn) {
-        iziModal(openModal, 'open', { transition: transitionIn });
-      } else {
-        iziModal(openModal, 'open');
+      const instance = iziModal(openModal);
+      if (instance) {
+        // トリガー要素の情報を含むパラメータオブジェクトを作成
+        const param = {
+          currentTarget: this,
+          transition: transitionIn
+        };
+        instance.open(param);
       }
     }, 200);
   });

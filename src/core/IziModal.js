@@ -11,7 +11,6 @@ import { next as navigationNext, prev as navigationPrev } from '../modules/navig
 import { recalcWidth as layoutRecalcWidth, recalcVerticalPos as layoutRecalcVerticalPos, recalcLayout as layoutRecalcLayout } from '../modules/layout.js';
 
 // グローバル変数
-const $window = window;
 const $document = document;
 const isMobileDevice = isMobile();
 
@@ -210,9 +209,14 @@ class IziModal {
     }
 
     // タイトル
-    if (this.options.title !== '') {
+    if (this.options.title === '') {
+      dom.addClass(this.$header, `${PLUGIN_NAME}-noTitle`);
+    } else {
       dom.query(`.${PLUGIN_NAME}-header-title`, this.$header).innerHTML = sanitize(this.options.title);
+    }
 
+    // ヘッダーカラーとアイコン（タイトルまたはサブタイトルがある場合に適用）
+    if (this.options.title !== '' || this.options.subtitle !== '') {
       if (this.options.headerColor !== null) {
         if (this.options.borderBottom === true) {
           dom.css(this.$element, { borderBottom: `3px solid ${this.options.headerColor}` });
@@ -235,7 +239,14 @@ class IziModal {
 
         dom.prepend(this.$header, icon);
       }
+    }
 
+    // ヘッダーが必要かどうかを判断
+    // タイトル、サブタイトル、ボタン類のいずれかが有効な場合にヘッダーを表示
+    const shouldShowHeader =
+      this.options.title !== '' || this.options.subtitle !== '' || this.options.closeButton === true || this.options.fullscreen === true || this.options.timeoutProgressbar === true;
+
+    if (shouldShowHeader) {
       dom.css(this.$element, { overflow: 'hidden' });
       dom.prepend(this.$element, this.$header);
     }
@@ -251,6 +262,11 @@ class IziModal {
 
   open(param) {
     const that = this;
+    console.log('=== open() called ===', {
+      id: this.id,
+      state: this.state,
+      group: this.group,
+    });
 
     // 他のモーダルを閉じる
     if (param && param.preventClose === false) {
@@ -346,9 +362,11 @@ class IziModal {
     }
 
     if (this.state === STATES.CLOSED) {
+      console.log('Modal state is CLOSED, initializing...');
       bindEvents();
 
       this.setGroup();
+      console.log('Group set after open:', this.group);
       this.state = STATES.OPENING;
       events.trigger(this.$element, STATES.OPENING);
       dom.setAttr(this.$element, 'aria-hidden', 'false');
@@ -381,7 +399,13 @@ class IziModal {
         }
 
         if (!href) {
-          throw new Error('Failed to find iframe URL');
+          const triggerInfo =
+            param && param.currentTarget
+              ? `Trigger: ${param.currentTarget.tagName}${param.currentTarget.id ? '#' + param.currentTarget.id : ''}${
+                  param.currentTarget.className ? '.' + param.currentTarget.className.split(' ').join('.') : ''
+                }`
+              : 'No trigger element';
+          throw new Error(`Failed to find iframe URL for modal #${this.$element.id}. ${triggerInfo}. Please set iframeURL option or use <a> tag with href attribute.`);
         }
 
         dom.setAttr(iframe, 'src', href);
@@ -411,6 +435,99 @@ class IziModal {
 
       if (this.options.transitionInOverlay) {
         dom.addClass(this.$overlay, this.options.transitionInOverlay);
+      }
+
+      // ナビゲーション矢印を表示
+      console.log('Navigation check:', {
+        groupName: this.group.name,
+        groupIdsLength: this.group.ids.length,
+        groupIds: this.group.ids,
+        navigateArrows: this.options.navigateArrows,
+        shouldShow: !!(
+          this.group.name &&
+          this.group.ids.length > 1 &&
+          (this.options.navigateArrows === true || this.options.navigateArrows === 'closeToModal' || this.options.navigateArrows === 'closeScreenEdge')
+        ),
+      });
+
+      if (
+        this.group.name &&
+        this.group.ids.length > 1 &&
+        (this.options.navigateArrows === true || this.options.navigateArrows === 'closeToModal' || this.options.navigateArrows === 'closeScreenEdge')
+      ) {
+        console.log('Appending navigation arrows to body');
+        dom.appendTo(this.$navigate, 'body');
+
+        // ナビゲーション矢印の位置を設定
+        const prevBtn = dom.query(`.${PLUGIN_NAME}-navigate-prev`, this.$navigate);
+        const nextBtn = dom.query(`.${PLUGIN_NAME}-navigate-next`, this.$navigate);
+
+        if (this.options.navigateArrows === 'closeToModal') {
+          // モーダルの近くに配置
+          // offsetWidthは0になることがあるので、options.widthを使用
+          const modalWidth = this.options.width || this.$element.offsetWidth || 600;
+          const screenWidth = window.innerWidth;
+          const modalLeft = (screenWidth - modalWidth) / 2;
+
+          console.log('Navigation position calculation:', {
+            screenWidth,
+            modalWidth,
+            'options.width': this.options.width,
+            offsetWidth: this.$element.offsetWidth,
+            modalLeft,
+            prevLeft: modalLeft - 84,
+            nextRight: modalLeft - 84,
+          });
+
+          if (prevBtn) {
+            // モーダルの左端から84px左に配置
+            const leftPos = Math.max(10, modalLeft - 84); // 最小10px
+            dom.css(prevBtn, {
+              left: leftPos + 'px',
+              right: 'auto',
+            });
+            console.log('prevBtn left set to:', leftPos);
+          }
+          if (nextBtn) {
+            // モーダルの右端から84px右に配置
+            const rightPos = Math.max(10, modalLeft - 84); // 最小10px
+            dom.css(nextBtn, {
+              right: rightPos + 'px',
+              left: 'auto',
+            });
+            console.log('nextBtn right set to:', rightPos);
+          }
+        } else if (this.options.navigateArrows === 'closeScreenEdge') {
+          // 画面端に配置
+          if (prevBtn) {
+            dom.css(prevBtn, {
+              left: '10px',
+              right: 'auto',
+            });
+          }
+          if (nextBtn) {
+            dom.css(nextBtn, {
+              right: '10px',
+              left: 'auto',
+            });
+          }
+        }
+        // navigateArrows === true の場合は、CSSのデフォルト値（left: 50%, right: 50%）を使用
+
+        dom.addClass(this.$navigate, 'fadeIn');
+
+        // ナビゲーションキャプションを更新
+        if (this.options.navigateCaption === true) {
+          const caption = dom.query(`.${PLUGIN_NAME}-navigate-caption`, this.$navigate);
+          if (caption) {
+            caption.innerHTML = `${this.group.index + 1} / ${this.group.ids.length}`;
+          }
+        } else {
+          const caption = dom.query(`.${PLUGIN_NAME}-navigate-caption`, this.$navigate);
+          if (caption) {
+            dom.hide(caption);
+          }
+        }
       }
 
       // トランジション設定

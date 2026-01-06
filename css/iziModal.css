@@ -156,6 +156,23 @@
         width: 30px;
     }
 
+    /* タイトルが空の場合 */
+    .iziModal .iziModal-header.iziModal-noTitle .iziModal-header-title{
+        display: none;
+    }
+
+    /* タイトルとサブタイトルの両方が空の場合 */
+    .iziModal .iziModal-header.iziModal-noTitle.iziModal-noSubtitle{
+        padding: 8px 15px;
+        min-height: 42px;
+    }
+    .iziModal .iziModal-header.iziModal-noTitle.iziModal-noSubtitle .iziModal-header-subtitle{
+        display: none;
+    }
+    .iziModal .iziModal-header.iziModal-noTitle.iziModal-noSubtitle .iziModal-header-buttons{
+        margin: -15px 0 0 0;
+    }
+
 
     /* RTL */
 
@@ -183,7 +200,7 @@
     }
     .iziModal-rtl .iziModal-header.iziModal-noSubtitle {
         padding: 10px 15px 12px 40px;
-    }    
+    }
     .iziModal-rtl .iziModal-header.iziModal-noSubtitle .iziModal-header-icon {
         padding: 0 0 0 13px;
     }
@@ -257,6 +274,7 @@
     top: 0;
     bottom: 0;
     pointer-events: none;
+    z-index: 9997;
 }
 .iziModal-navigate-caption{
     position: absolute;
@@ -303,11 +321,12 @@
         background-size: 100% !important;
         cursor: pointer;
         padding: 0;
-        opacity: 0.2;
+        opacity: 0.6;
         transition: opacity 0.3s ease;
         pointer-events: all;
         margin: 0;
         outline: none;
+        z-index: 9998;
     }
     .iziModal-navigate > button:hover{
         opacity: 1;
@@ -545,7 +564,7 @@ html.iziModal-isAttached{
     }
     100% {
         opacity: 1;
-        transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 ); 
+        transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 );
     }
 }
 @-moz-keyframes iziM-comingIn {
@@ -555,7 +574,7 @@ html.iziModal-isAttached{
     }
     100% {
         opacity: 1;
-        transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 ); 
+        transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 );
     }
 }
 @keyframes iziM-comingIn {
@@ -567,38 +586,38 @@ html.iziModal-isAttached{
     100% {
         opacity: 1;
         /*transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 ); */
-        transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 ); 
+        transform: scale(1) translateY(0) perspective( 600px ) rotateX( 0 );
     }
 }
 
 @-webkit-keyframes iziM-comingOut {
     0% {
         opacity: 1;
-        transform: scale(1); 
+        transform: scale(1);
     }
     100% {
         opacity: 0;
-        transform: scale(0.9); 
+        transform: scale(0.9);
     }
 }
 @-moz-keyframes iziM-comingOut {
     0% {
         opacity: 1;
-        transform: scale(1); 
+        transform: scale(1);
     }
     100% {
         opacity: 0;
-        transform: scale(0.9); 
+        transform: scale(0.9);
     }
 }
 @keyframes iziM-comingOut {
     0% {
         opacity: 1;
-        transform: scale(1); 
+        transform: scale(1);
     }
     100% {
         opacity: 0;
-        transform: scale(0.9); 
+        transform: scale(0.9);
     }
 }
 @-webkit-keyframes iziM-fadeOut {
@@ -1241,7 +1260,7 @@ html.iziModal-isAttached{
 }
 @keyframes iziM-flipInX {
     0% {
-        transform: perspective(400px) rotateX(60deg); 
+        transform: perspective(400px) rotateX(60deg);
         opacity: 0;
     }
     40% {
