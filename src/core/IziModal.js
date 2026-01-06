@@ -14,6 +14,12 @@ import { recalcWidth as layoutRecalcWidth, recalcVerticalPos as layoutRecalcVert
 const $document = document;
 const isMobileDevice = isMobile();
 
+// 定数
+const NAVIGATION_BUTTON_OFFSET = 84; // ナビゲーションボタンのモーダル端からのオフセット（px）
+const NAVIGATION_MIN_MARGIN = 10; // ナビゲーションボタンの最小マージン（px）
+const DEFAULT_MODAL_WIDTH = 600; // デフォルトのモーダル幅（px）
+const LAYOUT_UPDATE_INTERVAL = 300; // レイアウト更新間隔（ms）
+
 class IziModal {
   constructor(element, options) {
     this.$element = typeof element === 'string' ? dom.query(element) : element;
@@ -176,31 +182,39 @@ class IziModal {
     }
   }
 
-  createHeader() {
-    this.$header = dom.create(
-      `<div class="${PLUGIN_NAME}-header"><h2 class="${PLUGIN_NAME}-header-title"></h2><p class="${PLUGIN_NAME}-header-subtitle"></p><div class="${PLUGIN_NAME}-header-buttons"></div></div>`
-    );
+  /**
+   * ヘッダーボタンを作成
+   */
+  _createHeaderButtons() {
+    const buttonsContainer = dom.query(`.${PLUGIN_NAME}-header-buttons`, this.$header);
 
-    // 閉じるボタン
     if (this.options.closeButton === true) {
       const closeBtn = dom.create(`<a href="javascript:void(0)" class="${PLUGIN_NAME}-button ${PLUGIN_NAME}-button-close" data-${PLUGIN_NAME}-close></a>`);
-      dom.append(dom.query(`.${PLUGIN_NAME}-header-buttons`, this.$header), closeBtn);
+      dom.append(buttonsContainer, closeBtn);
     }
 
-    // フルスクリーンボタン
     if (this.options.fullscreen === true) {
       const fullscreenBtn = dom.create(`<a href="javascript:void(0)" class="${PLUGIN_NAME}-button ${PLUGIN_NAME}-button-fullscreen" data-${PLUGIN_NAME}-fullscreen></a>`);
-      dom.append(dom.query(`.${PLUGIN_NAME}-header-buttons`, this.$header), fullscreenBtn);
+      dom.append(buttonsContainer, fullscreenBtn);
     }
+  }
 
-    // プログレスバー
-    if (this.options.timeoutProgressbar === true) {
-      const progressbar = dom.create(`<div class="${PLUGIN_NAME}-progressbar"><div></div></div>`);
-      const progressbarInner = dom.query('div', progressbar);
-      dom.css(progressbarInner, { backgroundColor: this.options.timeoutProgressbarColor });
-      dom.prepend(this.$header, progressbar);
-    }
+  /**
+   * プログレスバーを作成
+   */
+  _createProgressBar() {
+    if (this.options.timeoutProgressbar !== true) return;
 
+    const progressbar = dom.create(`<div class="${PLUGIN_NAME}-progressbar"><div></div></div>`);
+    const progressbarInner = dom.query('div', progressbar);
+    dom.css(progressbarInner, { backgroundColor: this.options.timeoutProgressbarColor });
+    dom.prepend(this.$header, progressbar);
+  }
+
+  /**
+   * ヘッダーのタイトルとサブタイトルを設定
+   */
+  _setupHeaderText() {
     // サブタイトル
     if (this.options.subtitle === '') {
       dom.addClass(this.$header, `${PLUGIN_NAME}-noSubtitle`);
@@ -214,39 +228,57 @@ class IziModal {
     } else {
       dom.query(`.${PLUGIN_NAME}-header-title`, this.$header).innerHTML = sanitize(this.options.title);
     }
+  }
 
-    // ヘッダーカラーとアイコン（タイトルまたはサブタイトルがある場合に適用）
-    if (this.options.title !== '' || this.options.subtitle !== '') {
-      if (this.options.headerColor !== null) {
-        if (this.options.borderBottom === true) {
-          dom.css(this.$element, { borderBottom: `3px solid ${this.options.headerColor}` });
-        }
-        dom.css(this.$header, { background: this.options.headerColor });
+  /**
+   * ヘッダーの色とアイコンを設定
+   */
+  _setupHeaderStyle() {
+    if (this.options.title === '' && this.options.subtitle === '') return;
+
+    // ヘッダーカラー
+    if (this.options.headerColor !== null) {
+      if (this.options.borderBottom === true) {
+        dom.css(this.$element, { borderBottom: `3px solid ${this.options.headerColor}` });
       }
-
-      // アイコン
-      if (this.options.icon !== null || this.options.iconText !== null) {
-        const icon = dom.create(`<i class="${PLUGIN_NAME}-header-icon"></i>`);
-
-        if (this.options.icon !== null) {
-          dom.addClass(icon, this.options.icon);
-          dom.css(icon, { color: this.options.iconColor });
-        }
-
-        if (this.options.iconText !== null) {
-          icon.innerHTML = sanitize(this.options.iconText);
-        }
-
-        dom.prepend(this.$header, icon);
-      }
+      dom.css(this.$header, { background: this.options.headerColor });
     }
 
-    // ヘッダーが必要かどうかを判断
-    // タイトル、サブタイトル、ボタン類のいずれかが有効な場合にヘッダーを表示
-    const shouldShowHeader =
-      this.options.title !== '' || this.options.subtitle !== '' || this.options.closeButton === true || this.options.fullscreen === true || this.options.timeoutProgressbar === true;
+    // アイコン
+    if (this.options.icon !== null || this.options.iconText !== null) {
+      const icon = dom.create(`<i class="${PLUGIN_NAME}-header-icon"></i>`);
 
-    if (shouldShowHeader) {
+      if (this.options.icon !== null) {
+        dom.addClass(icon, this.options.icon);
+        dom.css(icon, { color: this.options.iconColor });
+      }
+
+      if (this.options.iconText !== null) {
+        icon.innerHTML = sanitize(this.options.iconText);
+      }
+
+      dom.prepend(this.$header, icon);
+    }
+  }
+
+  /**
+   * ヘッダーが必要かどうかを判断
+   */
+  _shouldShowHeader() {
+    return this.options.title !== '' || this.options.subtitle !== '' || this.options.closeButton === true || this.options.fullscreen === true || this.options.timeoutProgressbar === true;
+  }
+
+  createHeader() {
+    this.$header = dom.create(
+      `<div class="${PLUGIN_NAME}-header"><h2 class="${PLUGIN_NAME}-header-title"></h2><p class="${PLUGIN_NAME}-header-subtitle"></p><div class="${PLUGIN_NAME}-header-buttons"></div></div>`
+    );
+
+    this._createHeaderButtons();
+    this._createProgressBar();
+    this._setupHeaderText();
+    this._setupHeaderStyle();
+
+    if (this._shouldShowHeader()) {
       dom.css(this.$element, { overflow: 'hidden' });
       dom.prepend(this.$element, this.$header);
     }
@@ -260,15 +292,65 @@ class IziModal {
     }
   }
 
-  open(param) {
-    const that = this;
-    console.log('=== open() called ===', {
-      id: this.id,
-      state: this.state,
-      group: this.group,
-    });
+  /**
+   * グループナビゲーションが有効かどうかを判定
+   */
+  _shouldShowNavigation() {
+    return (
+      this.group.name && this.group.ids.length > 1 && (this.options.navigateArrows === true || this.options.navigateArrows === 'closeToModal' || this.options.navigateArrows === 'closeScreenEdge')
+    );
+  }
 
-    // 他のモーダルを閉じる
+  /**
+   * ナビゲーション矢印の位置を設定
+   */
+  _setupNavigationPosition() {
+    const prevBtn = dom.query(`.${PLUGIN_NAME}-navigate-prev`, this.$navigate);
+    const nextBtn = dom.query(`.${PLUGIN_NAME}-navigate-next`, this.$navigate);
+
+    if (this.options.navigateArrows === 'closeToModal') {
+      // モーダルの近くに配置
+      const modalWidth = this.options.width || this.$element.offsetWidth || DEFAULT_MODAL_WIDTH;
+      const screenWidth = window.innerWidth;
+      const modalLeft = (screenWidth - modalWidth) / 2;
+
+      if (prevBtn) {
+        const leftPos = Math.max(NAVIGATION_MIN_MARGIN, modalLeft - NAVIGATION_BUTTON_OFFSET);
+        dom.css(prevBtn, { left: leftPos + 'px', right: 'auto' });
+      }
+      if (nextBtn) {
+        const rightPos = Math.max(NAVIGATION_MIN_MARGIN, modalLeft - NAVIGATION_BUTTON_OFFSET);
+        dom.css(nextBtn, { right: rightPos + 'px', left: 'auto' });
+      }
+    } else if (this.options.navigateArrows === 'closeScreenEdge') {
+      // 画面端に配置
+      if (prevBtn) {
+        dom.css(prevBtn, { left: NAVIGATION_MIN_MARGIN + 'px', right: 'auto' });
+      }
+      if (nextBtn) {
+        dom.css(nextBtn, { right: NAVIGATION_MIN_MARGIN + 'px', left: 'auto' });
+      }
+    }
+  }
+
+  /**
+   * ナビゲーションキャプションを更新
+   */
+  _updateNavigationCaption() {
+    const caption = dom.query(`.${PLUGIN_NAME}-navigate-caption`, this.$navigate);
+    if (!caption) return;
+
+    if (this.options.navigateCaption === true) {
+      caption.innerHTML = `${this.group.index + 1} / ${this.group.ids.length}`;
+    } else {
+      dom.hide(caption);
+    }
+  }
+
+  /**
+   * 他のモーダルを閉じる
+   */
+  _closeOtherModals(param) {
     if (param && param.preventClose === false) {
       const modals = dom.queryAll(`.${PLUGIN_NAME}`);
       modals.forEach((modal) => {
@@ -281,6 +363,101 @@ class IziModal {
         }
       });
     }
+  }
+
+  /**
+   * URL履歴を管理
+   */
+  _manageHistory() {
+    if (this.options.history) {
+      const oldTitle = document.title;
+      document.title = oldTitle + ' - ' + this.options.title;
+      changeHashWithoutScrolling('#' + this.id);
+      document.title = oldTitle;
+      window.$iziModal.history = true;
+    } else {
+      window.$iziModal.history = false;
+    }
+  }
+
+  /**
+   * iframe URLを設定
+   */
+  _setupIframeURL(param) {
+    if (this.options.iframe !== true) return;
+
+    const content = dom.query(`.${PLUGIN_NAME}-content`, this.$element);
+    dom.addClass(content, `${PLUGIN_NAME}-content-loader`);
+
+    const iframe = dom.query(`.${PLUGIN_NAME}-iframe`, this.$element);
+    events.on(iframe, 'load', function () {
+      dom.removeClass(content, `${PLUGIN_NAME}-content-loader`);
+    });
+
+    let href = null;
+    if (param && param.currentTarget) {
+      href = dom.getAttr(param.currentTarget, 'href');
+    }
+
+    if (!href && this.options.iframeURL) {
+      href = this.options.iframeURL;
+    }
+
+    if (!href) {
+      const triggerInfo =
+        param && param.currentTarget
+          ? `Trigger: ${param.currentTarget.tagName}${param.currentTarget.id ? '#' + param.currentTarget.id : ''}${
+              param.currentTarget.className ? '.' + param.currentTarget.className.split(' ').join('.') : ''
+            }`
+          : 'No trigger element';
+      throw new Error(`Failed to find iframe URL for modal #${this.$element.id}. ${triggerInfo}. Please set iframeURL option or use <a> tag with href attribute.`);
+    }
+
+    dom.setAttr(iframe, 'src', href);
+  }
+
+  /**
+   * オーバーレイとナビゲーションを表示
+   */
+  _showOverlayAndNavigation() {
+    // オーバーレイ
+    if (this.options.overlay === true) {
+      if (this.options.appendToOverlay === false) {
+        dom.appendTo(this.$overlay, 'body');
+      } else {
+        dom.appendTo(this.$overlay, this.options.appendToOverlay);
+      }
+    }
+
+    if (this.options.transitionInOverlay) {
+      dom.addClass(this.$overlay, this.options.transitionInOverlay);
+    }
+
+    // ナビゲーション矢印
+    if (this._shouldShowNavigation()) {
+      dom.appendTo(this.$navigate, 'body');
+      this._setupNavigationPosition();
+      dom.addClass(this.$navigate, 'fadeIn');
+      this._updateNavigationCaption();
+    }
+  }
+
+  /**
+   * レイアウト更新タイマーを開始
+   */
+  _startLayoutUpdateTimer() {
+    const updateTimer = () => {
+      this.recalcLayout();
+      this.timer = setTimeout(updateTimer, LAYOUT_UPDATE_INTERVAL);
+    };
+    updateTimer();
+  }
+
+  open(param) {
+    const that = this;
+
+    this._closeOtherModals(param);
+    this._manageHistory();
 
     // URL履歴管理
     if (this.options.history) {
@@ -362,11 +539,9 @@ class IziModal {
     }
 
     if (this.state === STATES.CLOSED) {
-      console.log('Modal state is CLOSED, initializing...');
       bindEvents();
 
       this.setGroup();
-      console.log('Group set after open:', this.group);
       this.state = STATES.OPENING;
       events.trigger(this.$element, STATES.OPENING);
       dom.setAttr(this.$element, 'aria-hidden', 'false');
@@ -380,36 +555,7 @@ class IziModal {
       }
 
       // iframe URL設定
-      if (this.options.iframe === true) {
-        const content = dom.query(`.${PLUGIN_NAME}-content`, this.$element);
-        dom.addClass(content, `${PLUGIN_NAME}-content-loader`);
-
-        const iframe = dom.query(`.${PLUGIN_NAME}-iframe`, this.$element);
-        events.on(iframe, 'load', function () {
-          dom.removeClass(content, `${PLUGIN_NAME}-content-loader`);
-        });
-
-        let href = null;
-        if (param && param.currentTarget) {
-          href = dom.getAttr(param.currentTarget, 'href');
-        }
-
-        if (!href && this.options.iframeURL) {
-          href = this.options.iframeURL;
-        }
-
-        if (!href) {
-          const triggerInfo =
-            param && param.currentTarget
-              ? `Trigger: ${param.currentTarget.tagName}${param.currentTarget.id ? '#' + param.currentTarget.id : ''}${
-                  param.currentTarget.className ? '.' + param.currentTarget.className.split(' ').join('.') : ''
-                }`
-              : 'No trigger element';
-          throw new Error(`Failed to find iframe URL for modal #${this.$element.id}. ${triggerInfo}. Please set iframeURL option or use <a> tag with href attribute.`);
-        }
-
-        dom.setAttr(iframe, 'src', href);
-      }
+      this._setupIframeURL(param);
 
       // body overflow設定
       if (this.options.bodyOverflow || isMobileDevice) {
@@ -425,110 +571,7 @@ class IziModal {
       }
 
       // オーバーレイとナビゲーションを表示
-      if (this.options.overlay === true) {
-        if (this.options.appendToOverlay === false) {
-          dom.appendTo(this.$overlay, 'body');
-        } else {
-          dom.appendTo(this.$overlay, this.options.appendToOverlay);
-        }
-      }
-
-      if (this.options.transitionInOverlay) {
-        dom.addClass(this.$overlay, this.options.transitionInOverlay);
-      }
-
-      // ナビゲーション矢印を表示
-      console.log('Navigation check:', {
-        groupName: this.group.name,
-        groupIdsLength: this.group.ids.length,
-        groupIds: this.group.ids,
-        navigateArrows: this.options.navigateArrows,
-        shouldShow: !!(
-          this.group.name &&
-          this.group.ids.length > 1 &&
-          (this.options.navigateArrows === true || this.options.navigateArrows === 'closeToModal' || this.options.navigateArrows === 'closeScreenEdge')
-        ),
-      });
-
-      if (
-        this.group.name &&
-        this.group.ids.length > 1 &&
-        (this.options.navigateArrows === true || this.options.navigateArrows === 'closeToModal' || this.options.navigateArrows === 'closeScreenEdge')
-      ) {
-        console.log('Appending navigation arrows to body');
-        dom.appendTo(this.$navigate, 'body');
-
-        // ナビゲーション矢印の位置を設定
-        const prevBtn = dom.query(`.${PLUGIN_NAME}-navigate-prev`, this.$navigate);
-        const nextBtn = dom.query(`.${PLUGIN_NAME}-navigate-next`, this.$navigate);
-
-        if (this.options.navigateArrows === 'closeToModal') {
-          // モーダルの近くに配置
-          // offsetWidthは0になることがあるので、options.widthを使用
-          const modalWidth = this.options.width || this.$element.offsetWidth || 600;
-          const screenWidth = window.innerWidth;
-          const modalLeft = (screenWidth - modalWidth) / 2;
-
-          console.log('Navigation position calculation:', {
-            screenWidth,
-            modalWidth,
-            'options.width': this.options.width,
-            offsetWidth: this.$element.offsetWidth,
-            modalLeft,
-            prevLeft: modalLeft - 84,
-            nextRight: modalLeft - 84,
-          });
-
-          if (prevBtn) {
-            // モーダルの左端から84px左に配置
-            const leftPos = Math.max(10, modalLeft - 84); // 最小10px
-            dom.css(prevBtn, {
-              left: leftPos + 'px',
-              right: 'auto',
-            });
-            console.log('prevBtn left set to:', leftPos);
-          }
-          if (nextBtn) {
-            // モーダルの右端から84px右に配置
-            const rightPos = Math.max(10, modalLeft - 84); // 最小10px
-            dom.css(nextBtn, {
-              right: rightPos + 'px',
-              left: 'auto',
-            });
-            console.log('nextBtn right set to:', rightPos);
-          }
-        } else if (this.options.navigateArrows === 'closeScreenEdge') {
-          // 画面端に配置
-          if (prevBtn) {
-            dom.css(prevBtn, {
-              left: '10px',
-              right: 'auto',
-            });
-          }
-          if (nextBtn) {
-            dom.css(nextBtn, {
-              right: '10px',
-              left: 'auto',
-            });
-          }
-        }
-        // navigateArrows === true の場合は、CSSのデフォルト値（left: 50%, right: 50%）を使用
-
-        dom.addClass(this.$navigate, 'fadeIn');
-
-        // ナビゲーションキャプションを更新
-        if (this.options.navigateCaption === true) {
-          const caption = dom.query(`.${PLUGIN_NAME}-navigate-caption`, this.$navigate);
-          if (caption) {
-            caption.innerHTML = `${this.group.index + 1} / ${this.group.ids.length}`;
-          }
-        } else {
-          const caption = dom.query(`.${PLUGIN_NAME}-navigate-caption`, this.$navigate);
-          if (caption) {
-            dom.hide(caption);
-          }
-        }
-      }
+      this._showOverlayAndNavigation();
 
       // トランジション設定
       let transitionIn = this.options.transitionIn;
@@ -584,7 +627,6 @@ class IziModal {
 
       // フォーカス設定
       if (this.options.focusInput) {
-        // :inputはjQuery独自セレクターなので、ネイティブセレクターに変換
         const firstInput = dom.query('input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([disabled]), textarea:not([disabled]), select:not([disabled])', this.$element);
         if (firstInput) {
           firstInput.focus();
@@ -592,11 +634,7 @@ class IziModal {
       }
 
       // レイアウト更新タイマー
-      const updateTimer = () => {
-        this.recalcLayout();
-        this.timer = setTimeout(updateTimer, 300);
-      };
-      updateTimer();
+      this._startLayoutUpdateTimer();
 
       // Escキーで閉じる
       const escHandler = (e) => {

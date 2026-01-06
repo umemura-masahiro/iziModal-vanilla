@@ -10,9 +10,7 @@ export default [
       format: 'es',
       sourcemap: true,
     },
-    plugins: [
-      nodeResolve(),
-    ],
+    plugins: [nodeResolve()],
   },
   // ESM版（圧縮）- 本番用
   {

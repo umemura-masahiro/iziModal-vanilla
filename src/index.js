@@ -122,7 +122,7 @@ function createElementFromSelector(selector) {
   const parts = {
     tag: 'div',
     id: null,
-    classes: []
+    classes: [],
   };
 
   // IDを抽出
@@ -134,7 +134,7 @@ function createElementFromSelector(selector) {
   // クラスを抽出
   const classMatches = selector.match(/\.([^.#]+)/g);
   if (classMatches) {
-    parts.classes = classMatches.map(c => c.substring(1));
+    parts.classes = classMatches.map((c) => c.substring(1));
   }
 
   // タグを抽出
@@ -147,7 +147,7 @@ function createElementFromSelector(selector) {
     const element = document.createElement(parts.tag);
     if (parts.id) element.id = parts.id;
     if (parts.classes.length > 0) {
-      parts.classes.forEach(className => element.classList.add(className));
+      parts.classes.forEach((className) => element.classList.add(className));
     }
     return element;
   } catch (err) {
@@ -158,7 +158,7 @@ function createElementFromSelector(selector) {
 /**
  * デフォルトオプションを設定
  */
-iziModal.setDefaults = function(options) {
+iziModal.setDefaults = function (options) {
   Object.assign(defaults, options);
 };
 
@@ -167,7 +167,7 @@ iziModal.setDefaults = function(options) {
  */
 function initGlobalEvents() {
   // data-iziModal-open属性を持つ要素のクリックイベント
-  events.delegate(document, 'click', `[data-${PLUGIN_NAME}-open]`, function(e) {
+  events.delegate(document, 'click', `[data-${PLUGIN_NAME}-open]`, function (e) {
     e.preventDefault();
 
     const openModal = dom.getAttr(this, `data-${PLUGIN_NAME}-open`);
@@ -183,7 +183,7 @@ function initGlobalEvents() {
     // 既存のモーダルを閉じる
     if (!preventClose) {
       const visibleModals = dom.queryAllVisible(`.${PLUGIN_NAME}`);
-      visibleModals.forEach(modal => {
+      visibleModals.forEach((modal) => {
         const instance = getInstance(modal);
         if (instance) {
           if (transitionOut) {
@@ -202,7 +202,7 @@ function initGlobalEvents() {
         // トリガー要素の情報を含むパラメータオブジェクトを作成
         const param = {
           currentTarget: this,
-          transition: transitionIn
+          transition: transitionIn,
         };
         instance.open(param);
       }
@@ -222,9 +222,11 @@ function initGlobalEvents() {
 
         // input/textareaにフォーカスがある場合は無効
         if (target.tagName.toUpperCase() !== 'INPUT' && target.tagName.toUpperCase() !== 'TEXTAREA') {
-          if (event.keyCode === 37) { // 左矢印
+          if (event.keyCode === 37) {
+            // 左矢印
             instance.prev(event);
-          } else if (event.keyCode === 39) { // 右矢印
+          } else if (event.keyCode === 39) {
+            // 右矢印
             instance.next(event);
           }
         }
