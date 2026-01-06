@@ -18,8 +18,11 @@ export function next(modal, e) {
   if (e && typeof e.preventDefault === 'function') {
     e.preventDefault();
     const target = e.currentTarget;
-    transitionIn = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionIn`) || transitionIn;
-    transitionOut = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionOut`) || transitionOut;
+    // targetがDOM要素で、getAttributeメソッドを持つ場合のみdata属性を取得
+    if (target && target.nodeType === 1 && typeof target.getAttribute === 'function') {
+      transitionIn = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionIn`) || transitionIn;
+      transitionOut = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionOut`) || transitionOut;
+    }
   } else if (e && typeof e === 'object') {
     // カスタムオプションオブジェクトの場合
     if (e.transitionIn) transitionIn = e.transitionIn;
@@ -80,8 +83,11 @@ export function prev(modal, e) {
   if (e && typeof e.preventDefault === 'function') {
     e.preventDefault();
     const target = e.currentTarget;
-    transitionIn = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionIn`) || transitionIn;
-    transitionOut = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionOut`) || transitionOut;
+    // targetがDOM要素で、getAttributeメソッドを持つ場合のみdata属性を取得
+    if (target && target.nodeType === 1 && typeof target.getAttribute === 'function') {
+      transitionIn = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionIn`) || transitionIn;
+      transitionOut = dom.getAttr(target, `data-${PLUGIN_NAME}-transitionOut`) || transitionOut;
+    }
   } else if (e && typeof e === 'object') {
     // カスタムオプションオブジェクトの場合
     if (e.transitionIn) transitionIn = e.transitionIn;

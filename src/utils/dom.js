@@ -91,7 +91,7 @@ export function css(element, styles) {
 
   // オブジェクトの場合は設定
   if (styles && typeof styles === 'object') {
-    Object.keys(styles).forEach(property => {
+    Object.keys(styles).forEach((property) => {
       element.style[property] = styles[property];
     });
   }
@@ -162,14 +162,16 @@ export function innerHeight(element) {
 export function isVisible(element) {
   if (!element) return false;
 
-  // display: none でないか、offsetParent が存在するかをチェック
-  if (element.offsetParent === null) {
+  // 計算されたスタイルをチェック
+  const style = window.getComputedStyle(element);
+
+  // display: none または visibility: hidden の場合は非表示
+  if (style.display === 'none' || style.visibility === 'hidden') {
     return false;
   }
 
-  // 計算されたスタイルをチェック
-  const style = window.getComputedStyle(element);
-  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+  // offsetWidth と offsetHeight が両方0の場合は非表示
+  if (element.offsetWidth === 0 && element.offsetHeight === 0) {
     return false;
   }
 
@@ -181,7 +183,7 @@ export function isVisible(element) {
  */
 export function queryAllVisible(selector, context = document) {
   const elements = queryAll(selector, context);
-  return elements.filter(el => isVisible(el));
+  return elements.filter((el) => isVisible(el));
 }
 
 /**

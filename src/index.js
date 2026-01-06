@@ -7,7 +7,7 @@ import { defaults } from './core/defaults.js';
 import { PLUGIN_NAME } from './core/constants.js';
 import * as dom from './utils/dom.js';
 import * as events from './utils/events.js';
-import { extend } from './utils/helpers.js';
+import { extend, isMobile } from './utils/helpers.js';
 
 /**
  * ファクトリー関数
@@ -101,12 +101,9 @@ function iziModal(selector, optionOrMethod, ...args) {
 
   // 複数要素でグループが設定されている場合、グループを再設定
   if (isMultiple && instances.length > 0) {
-    console.log('Setting up group for multiple instances:', instances.length);
     instances.forEach((instance, index) => {
       if (instance && instance.group && instance.group.name) {
-        console.log(`Setting group for instance ${index}:`, instance.group.name);
         instance.setGroup();
-        console.log(`Group set for instance ${index}:`, instance.group);
       }
     });
   }
@@ -213,15 +210,16 @@ function initGlobalEvents() {
   events.on(document, 'keyup', (event) => {
     const visibleModals = dom.queryAllVisible(`.${PLUGIN_NAME}`);
 
-    if (visibleModals.length > 0) {
+    // モバイルデバイスでは無効
+    if (visibleModals.length > 0 && !isMobile()) {
       const modal = visibleModals[0];
       const instance = getInstance(modal);
 
       if (instance && instance.options.arrowKeys && instance.group.name) {
-        const target = event.target;
+        const target = event.target || event.srcElement;
 
-        // input/textareaにフォーカスがある場合は無効
-        if (target.tagName.toUpperCase() !== 'INPUT' && target.tagName.toUpperCase() !== 'TEXTAREA') {
+        // 修飾キーが押されている場合、またはinput/textareaにフォーカスがある場合は無効
+        if (!event.ctrlKey && !event.metaKey && !event.altKey && target.tagName.toUpperCase() !== 'INPUT' && target.tagName.toUpperCase() !== 'TEXTAREA') {
           if (event.keyCode === 37) {
             // 左矢印
             instance.prev(event);
