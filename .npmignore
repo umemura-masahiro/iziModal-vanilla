@@ -1,0 +1,37 @@
+# Development files
+docs/
+src/
+rollup.config.js
+demo.html
+.cursor/
+bower.json
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Dependencies (not needed in published package)
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts (except dist/)
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+*.test.js
+
+# Misc
+.env
+*.bak
+*.tmp

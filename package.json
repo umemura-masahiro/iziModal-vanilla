@@ -1,26 +1,50 @@
 {
-  "name": "izimodal",
-  "version": "1.6.1",
-  "description": "Elegant, responsive, flexible and lightweight modal plugin with jQuery.",
-  "readmeFilename": "README.md",
-  "main": "js/iziModal.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/marcelodolza/iziModal.git"
+  "name": "izimodal-vanilla",
+  "version": "2.0.0-beta.1",
+  "publishConfig": {
+    "access": "restricted"
   },
-  "dependencies":{
-    "jquery": "~3"
+  "description": "Elegant, responsive, flexible and lightweight modal plugin with Vanilla JavaScript (no jQuery required).",
+  "type": "module",
+  "main": "./dist/iziModal.esm.js",
+  "module": "./dist/iziModal.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/iziModal.esm.js",
+      "default": "./dist/iziModal.esm.js"
+    },
+    "./css": "./css/iziModal.css",
+    "./css/min": "./css/iziModal.min.css"
+  },
+  "files": [
+    "dist",
+    "css",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "izimodal",
-    "jQuery",
+    "vanilla-js",
     "modal",
     "lightbox",
     "iframe",
     "alert",
     "javascript",
-    "js"
+    "js",
+    "no-jquery",
+    "es6",
+    "esm"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcelodolza/iziModal.git"
+  },
   "author": {
     "name": "Marcelo Dolza",
     "email": "marcelodolza@gmail.com",
@@ -30,5 +54,10 @@
   "bugs": {
     "url": "https://github.com/marcelodolza/iziModal/issues"
   },
-  "homepage": "https://github.com/marcelodolza/iziModal#readme"
+  "homepage": "https://github.com/marcelodolza/iziModal#readme",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.9.0"
+  }
 }
